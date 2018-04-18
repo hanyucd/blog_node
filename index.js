@@ -34,6 +34,18 @@ app.use(session({
 // flash 中间件，用来显示通知
 app.use(flash());
 
+// app.locals 上通常挂载常量信息
+app.locals.blog = {
+  title: pkg.name,
+  description: pkg.description
+};
+// res.locals 上通常挂载变量信息
+app.use(function(req, res, next) {
+  res.locals.user = req.session.user;
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+});
+
 // 路由
 routes(app);
 // 监听端口，启动程序
