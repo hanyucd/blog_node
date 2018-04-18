@@ -2,7 +2,8 @@ const express = require('express');
 const path = require('path');
 const session = require('express-session');
 // const MongoStore = require('connect-mongo')(session);
-const flash = require('connect-flash');
+const flash = require('connect-flash');   // 消息通知中间件
+// 读取配置文件 | 默认加载 ./config/default.js
 const config = require('config-lite')(__dirname);
 
 const routes = require('./routes');   // 默认加载 index.js
@@ -23,7 +24,7 @@ app.use(session({
   resave: true,   // 强制更新 session
   saveUninitialized: false,   // 设置为 false，强制创建一个 session，即使用户未登录
   cookie: {
-    maxAge: config.session.maxAge   // 过期时间，过期后 cookie 中的 session id 自动删除
+    maxAge: config.session.maxAge   // 过期时间，过期后 cookie 中的 session id 自动删除 | 单位（毫秒）
   },
   // store: new MongoStore({   // 将 session 存储到 mongodb
   //   url: config.mongodb   // mongodb 地址
