@@ -5,5 +5,10 @@ module.exports = {
   create: function(user) {
     // exec() 返回 promise 对象
     return User.create(user).exec();
+  },
+  getUserByName: function(name) {
+    return User.findOne({ name: name })
+      .addCreateAt()
+      .exec();
   }
 }
