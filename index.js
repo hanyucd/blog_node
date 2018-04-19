@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const session = require('express-session');
-// const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo')(session);
 const flash = require('connect-flash');   // 消息通知中间件
 // 读取配置文件 | 默认加载 ./config/default.js
 const config = require('config-lite')(__dirname);
@@ -13,7 +13,7 @@ const app = express();
 // 设置模板目录
 app.set('views', path.join(__dirname, 'views'));
 // 设置模板引擎为 ejs
-app.set('view engin', 'ejs');
+app.set('view engine', 'ejs');
 
 // 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));
@@ -26,13 +26,18 @@ app.use(session({
   cookie: {
     maxAge: config.session.maxAge   // 过期时间，过期后 cookie 中的 session id 自动删除 | 单位（毫秒）
   },
-  // store: new MongoStore({   // 将 session 存储到 mongodb
-  //   url: config.mongodb   // mongodb 地址
-  // })
+  store: new MongoStore({   // 将 session 存储到 mongodb
+    url: config.mongodb   // mongodb 地址
+  })
 }));
 
 // flash 中间件，用来显示通知
 app.use(flash());
+// 处理表单及文件上传的中间件
+app.use(require('express-formidable')({
+  uploadDir: path.join(__dirname, 'public/img'),   // 上传文件到此目录
+  keepExtensions: true   // 保留后缀
+}));
 
 // app.locals 上通常挂载常量信息
 app.locals.blog = {
@@ -42,8 +47,9 @@ app.locals.blog = {
 // res.locals 上通常挂载变量信息
 app.use(function(req, res, next) {
   res.locals.user = req.session.user;
-  res.locals.success = req.flash('success');
-  res.locals.error = req.flash('error');
+  res.locals.success = req.flash('success').toString();
+  res.locals.error = req.flash('error').toString();
+  next();
 });
 
 // 路由
