@@ -8,6 +8,9 @@ const config = require('config-lite')(__dirname);
 
 const routes = require('./routes');   // 默认加载 index.js
 const pkg = require('./package');   // 加载 ./package.json
+// 用于日志模块
+const winston = require('winston');
+const expressWinston = require('express-winston');
 
 const app = express();
 // 设置模板目录
@@ -52,9 +55,47 @@ app.use(function(req, res, next) {
   next();
 });
 
+// 正常请求的日志
+app.use(expressWinston.logger({
+  transports: [
+    new winston.transports.Console({
+      json: true,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: 'logs/success.log'
+    })
+  ]
+}));
+
 // 路由
 routes(app);
-// 监听端口，启动程序
-app.listen(config.port, function() {
-  console.log(`${ pkg.name } listening on port ${ config.port }...`);
+
+// 错误请求的日志
+app.use(expressWinston.errorLogger({
+  transports: [
+    new winston.transports.Console({
+      json: true,
+      colorize: true
+    }),
+    new winston.transports.File({
+      filename: 'logs/error.log'
+    })
+  ]
+}));
+
+app.use(function(error, req, res, next) {
+  console.log(error);
+  req.flash('error', error.message);
+  res.redirect('/posts');
 });
+
+if (module.parent) {
+  // 被 require，则导出 app （通常用于测试）
+  module.exports = app;
+} else {
+  // 监听端口，启动程序
+  app.listen(config.port, function() {
+    console.log(`${ pkg.name } listening on port ${ config.port }...`);
+  });
+}

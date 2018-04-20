@@ -6,6 +6,7 @@ module.exports = {
     // exec() 返回 promise 对象
     return User.create(user).exec();
   },
+  // 通过用户名获取用户信息
   getUserByName: function(name) {
     return User.findOne({ name: name })
       .addCreatedAt()

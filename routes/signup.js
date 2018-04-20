@@ -63,7 +63,7 @@ router.post('/', checkNotLogin, function(req, res, next) {
     user = result.ops[0];
     delete user.password;  // 删除密码这种敏感信息
     req.session.user = user;   // 将用户信息存入 session
-    req.flash('success', '注册成功 !');
+    req.flash('success', `注册成功 ! 欢迎用户 ${ user.name } 来到此博客站点 ...`);
     res.redirect('/posts');   // 跳转到首页
   }).catch(function(error) {
     fs.unlink(req.files.avatar.path);   // 注册失败，异步删除上传的头像
