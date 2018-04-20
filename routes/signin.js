@@ -29,7 +29,6 @@ router.post('/', checkNotLogin, function(req, res, next) {
   }
 
   UserModel.getUserByName(name).then(function(user) {
-    console.log(user);
     if (!user) {
       req.flash('error', '用户不存在 ！');
       return res.redirect('back');
@@ -40,9 +39,8 @@ router.post('/', checkNotLogin, function(req, res, next) {
       return res.redirect('back');
     }
     req.flash('success', '登录成功 ！');
-    // 用户信息写入 session
-    delete user.password;
-    req.session.user = user;
+    delete user.password;   // 删除密码
+    req.session.user = user;   // 用户信息写入 session
     res.redirect('/posts');
   }).catch(next);
 });
